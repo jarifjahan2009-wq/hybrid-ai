@@ -1,1293 +1,1356 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html><html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0f14">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0f14">
+<title>HYBRID AI</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
 
-  <title>HYBRID AI</title>
+html,body{
+width:100%;
+height:100%;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+body{
+font-family:Arial,"Noto Sans Bengali",sans-serif;
+background:#f7f8fa;
+color:#111827;
+overflow:hidden;
+}
+
+body.dark{
+background:#0b0f14;
+color:#f3f4f6;
+}
+
+button,textarea{
+font-family:inherit;
+}
+
+button{
+cursor:pointer;
+-webkit-tap-highlight-color:transparent;
+}
+
+.app{
+width:100%;
+height:100dvh;
+display:flex;
+flex-direction:column;
+}
+
+/* HEADER */
+
+.header{
+height:64px;
+min-height:64px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 15px;
+background:rgba(255,255,255,.94);
+border-bottom:1px solid #e5e7eb;
+position:relative;
+z-index:10;
+}
+
+body.dark .header{
+background:rgba(15,23,32,.95);
+border-color:#1f2937;
+}
+
+.brand-title{
+font-size:20px;
+font-weight:800;
+}
+
+.brand-subtitle{
+font-size:7px;
+font-weight:700;
+letter-spacing:1.5px;
+opacity:.55;
+margin-top:2px;
+}
+
+.header-actions{
+display:flex;
+gap:5px;
+}
+
+.icon-btn{
+width:40px;
+height:40px;
+border:0;
+border-radius:12px;
+background:transparent;
+color:inherit;
+font-size:19px;
+}
+
+.icon-btn:active{
+transform:scale(.94);
+}
+
+.icon-btn:hover{
+background:#f1f5f9;
+}
+
+body.dark .icon-btn:hover{
+background:#1f2937;
+}
+
+/* CHAT */
+
+.chat{
+flex:1;
+overflow-y:auto;
+padding:25px 14px 150px;
+}
+
+.welcome{
+max-width:760px;
+margin:60px auto 30px;
+text-align:center;
+}
+
+.welcome-title{
+font-size:34px;
+font-weight:800;
+}
+
+.welcome-subtitle{
+font-size:9px;
+font-weight:700;
+letter-spacing:2px;
+opacity:.55;
+margin-top:6px;
+}
+
+.mode-bar{
+display:flex;
+gap:7px;
+overflow-x:auto;
+margin:25px auto 18px;
+scrollbar-width:none;
+}
+
+.mode-bar::-webkit-scrollbar{
+display:none;
+}
+
+.mode{
+white-space:nowrap;
+padding:8px 14px;
+border:1px solid #e5e7eb;
+border-radius:20px;
+background:#fff;
+color:#111827;
+font-size:12px;
+}
+
+.mode.active{
+background:#111827;
+color:#fff;
+border-color:#111827;
+}
+
+body.dark .mode{
+background:#111827;
+color:#fff;
+border-color:#374151;
+}
+
+body.dark .mode.active{
+background:#fff;
+color:#111827;
+}
+
+.suggestions{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:10px;
+max-width:760px;
+margin:20px auto;
+}
+
+.suggestion{
+padding:15px;
+text-align:left;
+border:1px solid #e5e7eb;
+border-radius:15px;
+background:#fff;
+color:inherit;
+}
+
+.suggestion:active{
+transform:scale(.98);
+}
+
+body.dark .suggestion{
+background:#111827;
+border-color:#374151;
+}
+
+#messages{
+width:100%;
+}
+
+.message{
+max-width:850px;
+margin:16px auto;
+display:flex;
+flex-direction:column;
+}
+
+.message.user{
+align-items:flex-end;
+}
+
+.message.ai{
+align-items:flex-start;
+}
+
+.bubble{
+max-width:88%;
+padding:13px 16px;
+border-radius:17px;
+line-height:1.65;
+white-space:pre-wrap;
+word-break:break-word;
+font-size:15px;
+}
+
+.user .bubble{
+background:#111827;
+color:#fff;
+border-bottom-right-radius:5px;
+}
+
+.ai .bubble{
+background:#fff;
+color:#111827;
+border:1px solid #e5e7eb;
+border-bottom-left-radius:5px;
+}
+
+body.dark .ai .bubble{
+background:#111827;
+color:#f3f4f6;
+border-color:#374151;
+}
+
+.message-actions{
+display:flex;
+gap:6px;
+margin-top:7px;
+}
+
+.small-btn{
+border:0;
+border-radius:8px;
+padding:6px 9px;
+font-size:11px;
+background:#eef1f5;
+color:#111827;
+}
+
+body.dark .small-btn{
+background:#1f2937;
+color:#fff;
+}
+
+/* INPUT */
+
+.input-area{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+padding:20px 12px 12px;
+background:linear-gradient(transparent,#f7f8fa 30%);
+z-index:20;
+}
+
+body.dark .input-area{
+background:linear-gradient(transparent,#0b0f14 30%);
+}
+
+.input-box{
+max-width:850px;
+margin:auto;
+display:flex;
+align-items:flex-end;
+padding:7px;
+background:#fff;
+border:1px solid #dfe3e8;
+border-radius:18px;
+box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+
+body.dark .input-box{
+background:#111827;
+border-color:#374151;
+}
+
+textarea{
+flex:1;
+resize:none;
+border:0;
+outline:0;
+padding:11px;
+min-height:44px;
+max-height:130px;
+background:transparent;
+color:inherit;
+font-size:15px;
+line-height:1.5;
+}
+
+.voice-btn,
+.send-btn{
+width:43px;
+height:43px;
+flex-shrink:0;
+border:0;
+border-radius:13px;
+font-size:18px;
+}
+
+.voice-btn{
+background:#eef1f5;
+color:#111827;
+margin-right:6px;
+}
+
+body.dark .voice-btn{
+background:#1f2937;
+color:#fff;
+}
+
+.voice-btn.recording{
+background:#ef4444;
+color:#fff;
+}
+
+.send-btn{
+background:#111827;
+color:#fff;
+}
+
+body.dark .send-btn{
+background:#fff;
+color:#111827;
+}
+
+.send-btn:disabled{
+opacity:.45;
+}
+
+/* MENU */
+
+.menu-overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.35);
+z-index:90;
+display:none;
+}
+
+.menu-overlay.open{
+display:block;
+}
+
+.side-menu{
+position:fixed;
+top:0;
+right:-330px;
+width:min(310px,88vw);
+height:100dvh;
+background:#fff;
+z-index:100;
+padding:18px;
+transition:right .3s ease;
+overflow-y:auto;
+}
+
+.side-menu.open{
+right:0;
+}
+
+body.dark .side-menu{
+background:#111827;
+}
+
+.menu-top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:15px;
+}
+
+.menu-title{
+font-size:20px;
+font-weight:700;
+}
+
+.menu-actions{
+display:flex;
+gap:7px;
+margin-bottom:15px;
+}
+
+.history-item{
+padding:12px;
+border-radius:10px;
+background:#f3f4f6;
+margin:8px 0;
+cursor:pointer;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+body.dark .history-item{
+background:#1f2937;
+}
+
+.empty-history{
+opacity:.55;
+font-size:13px;
+padding:15px 5px;
+}
+
+/* VOICE */
+
+.voice-mode{
+position:fixed;
+inset:0;
+background:rgba(7,10,15,.98);
+color:#fff;
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+z-index:200;
+padding:25px;
+}
+
+.voice-mode.active{
+display:flex;
+}
+
+.voice-mode-title{
+font-size:22px;
+font-weight:700;
+margin-bottom:8px;
+}
+
+.voice-mode-subtitle{
+font-size:12px;
+opacity:.65;
+margin-bottom:30px;
+}
+
+.voice-orb{
+width:155px;
+height:155px;
+border-radius:50%;
+border:0;
+background:#111827;
+color:#fff;
+font-size:50px;
+}
+
+.voice-orb.listening{
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 0 0 rgba(255,255,255,.25)}
+70%{box-shadow:0 0 0 40px rgba(255,255,255,0)}
+100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}
+}
+
+.voice-status{
+margin-top:28px;
+text-align:center;
+min-height:25px;
+}
+
+.voice-transcript{
+max-width:600px;
+margin-top:15px;
+text-align:center;
+opacity:.75;
+}
+
+.voice-controls{
+display:flex;
+gap:10px;
+margin-top:30px;
+}
+
+.voice-control-btn{
+border:0;
+border-radius:12px;
+padding:12px 18px;
+cursor:pointer;
+}
+
+@media(max-width:600px){
+
+.suggestions{
+grid-template-columns:1fr;
+}
+
+.welcome-title{
+font-size:28px;
+}
+
+.bubble{
+max-width:92%;
+}
+
+}
+</style></head><body><div class="app"><header class="header"><div>
+<div class="brand-title">HYBRID AI</div>
+<div class="brand-subtitle">SUPER POWER • MULTI-AI</div>
+</div><div class="header-actions"><button
+id="themeBtn"
+class="icon-btn"
+type="button"
+
+«»
+
+🌙
+</button>
+
+<button
+id="historyBtn"
+class="icon-btn"
+type="button"
+
+«»
+
+☰
+</button>
+
+</div></header><main id="chat" class="chat"><section id="welcome" class="welcome"><div class="welcome-title">
+HYBRID AI
+</div><div class="welcome-subtitle">
+SUPER POWER • MULTI-AI
+</div><div class="mode-bar"><button class="mode active" data-mode="auto" type="button">
+✨ Auto
+</button><button class="mode" data-mode="fast" type="button">
+⚡ Fast
+</button><button class="mode" data-mode="deep" type="button">
+🧠 Deep
+</button><button class="mode" data-mode="creative" type="button">
+🎨 Creative
+</button></div><div class="suggestions"><button class="suggestion" data-text="আমাকে নতুন কিছু শেখান" type="button">
+💡 নতুন কিছু শেখান
+</button><button class="suggestion" data-text="একটি কঠিন বিষয় সহজভাবে বুঝিয়ে দিন" type="button">
+🧠 কঠিন বিষয় বুঝিয়ে দিন
+</button><button class="suggestion" data-text="আমাকে একটি নতুন ব্যবসার আইডিয়া দিন" type="button">
+🚀 ব্যবসার আইডিয়া
+</button><button class="suggestion" data-text="আমাকে একটি সুন্দর গল্প লিখে দিন" type="button">
+✍️ গল্প লিখুন
+</button></div></section><div id="messages"></div></main><div class="input-area"><div class="input-box"><textarea
+id="input"
+rows="1"
+placeholder="HYBRID AI-কে কিছু জিজ্ঞাসা করুন..."
+></textarea><button
+id="voiceBtn"
+class="voice-btn"
+type="button"
+
+«»
+
+🎙️
+</button>
+
+<button
+id="sendBtn"
+class="send-btn"
+type="button"
+
+«»
+
+➤
+</button>
+
+</div></div></div><div id="menuOverlay" class="menu-overlay"></div><aside id="sideMenu" class="side-menu"><div class="menu-top"><div class="menu-title">
+Chat History
+</div><button
+id="closeMenu"
+class="icon-btn"
+type="button"
+
+«»
+
+×
+</button>
+
+</div><div class="menu-actions"><button
+id="newChat"
+class="small-btn"
+type="button"
+
+«»
+
+＋ New Chat
+</button>
+
+<button
+id="clearHistory"
+class="small-btn"
+type="button"
+
+«»
+
+🗑 Clear
+</button>
+
+</div><div id="history"></div></aside><section id="voiceMode" class="voice-mode"><div class="voice-mode-title">
+HYBRID AI Voice Mode
+</div><div class="voice-mode-subtitle">
+কথা বলুন — AI শুনবে এবং উত্তর দেবে
+</div><button
+id="voiceOrb"
+class="voice-orb"
+type="button"
+
+«»
+
+🎙️
+</button>
+
+<div id="voiceStatus" class="voice-status">
+কথা বলার জন্য মাইক্রোফোনে চাপ দিন
+</div><div id="voiceTranscript" class="voice-transcript"></div><div class="voice-controls"><button
+id="stopSpeaking"
+class="voice-control-btn"
+type="button"
+
+«»
+
+🔇 AI Voice বন্ধ
+</button>
+
+<button
+id="closeVoice"
+class="voice-control-btn"
+type="button"
+
+«»
+
+বন্ধ করুন
+</button>
+
+</div></section><script>
+"use strict";
+
+/*
+==================================================
+HYBRID AI FRONTEND
+==================================================
+*/
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
+  const messagesEl = document.getElementById("messages");
+  const welcome = document.getElementById("welcome");
+  const chat = document.getElementById("chat");
+
+  const themeBtn = document.getElementById("themeBtn");
+  const historyBtn = document.getElementById("historyBtn");
+
+  const sideMenu = document.getElementById("sideMenu");
+  const closeMenu = document.getElementById("closeMenu");
+  const menuOverlay = document.getElementById("menuOverlay");
+
+  const historyEl = document.getElementById("history");
+  const newChatBtn = document.getElementById("newChat");
+  const clearHistoryBtn = document.getElementById("clearHistory");
+
+  const voiceBtn = document.getElementById("voiceBtn");
+  const voiceMode = document.getElementById("voiceMode");
+  const voiceOrb = document.getElementById("voiceOrb");
+  const voiceStatus = document.getElementById("voiceStatus");
+  const voiceTranscript = document.getElementById("voiceTranscript");
+
+  const stopSpeakingBtn = document.getElementById("stopSpeaking");
+  const closeVoiceBtn = document.getElementById("closeVoice");
+
+
+  let currentChat = {
+    id: Date.now(),
+    title: "New Chat",
+    messages: []
+  };
+
+  let selectedMode = "auto";
+  let loading = false;
+  let recognition = null;
+  let isListening = false;
+
+
+  /*
+  ==============================
+  THEME
+  ==============================
+  */
+
+  if (localStorage.getItem("hybrid_theme") === "dark") {
+    document.body.classList.add("dark");
+    themeBtn.textContent = "☀️";
+  }
+
+  themeBtn.addEventListener("click", function () {
+
+    document.body.classList.toggle("dark");
+
+    const dark =
+      document.body.classList.contains("dark");
+
+    localStorage.setItem(
+      "hybrid_theme",
+      dark ? "dark" : "light"
+    );
+
+    themeBtn.textContent =
+      dark ? "☀️" : "🌙";
+
+  });
+
+
+  /*
+  ==============================
+  MODE
+  ==============================
+  */
+
+  document.querySelectorAll(".mode").forEach(function (button) {
+
+    button.addEventListener("click", function () {
+
+      document.querySelectorAll(".mode").forEach(function (item) {
+        item.classList.remove("active");
+      });
+
+      button.classList.add("active");
+
+      selectedMode =
+        button.dataset.mode || "auto";
+
+    });
+
+  });
+
+
+  /*
+  ==============================
+  SUGGESTIONS
+  ==============================
+  */
+
+  document.querySelectorAll(".suggestion").forEach(function (button) {
+
+    button.addEventListener("click", function () {
+
+      input.value =
+        button.dataset.text || "";
+
+      input.focus();
+
+      resizeInput();
+
+    });
+
+  });
+
+
+  /*
+  ==============================
+  TEXTAREA
+  ==============================
+  */
+
+  function resizeInput() {
+
+    input.style.height = "auto";
+
+    input.style.height =
+      Math.min(
+        input.scrollHeight,
+        130
+      ) + "px";
+
+  }
+
+  input.addEventListener(
+    "input",
+    resizeInput
+  );
+
+
+  /*
+  ==============================
+  SEND BUTTON
+  ==============================
+  */
+
+  sendBtn.addEventListener(
+    "click",
+    function () {
+      sendMessage();
     }
+  );
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-    }
 
-    body {
-      font-family:
-        Arial,
-        "Noto Sans Bengali",
-        sans-serif;
+  /*
+  ==============================
+  ENTER TO SEND
+  ==============================
+  */
 
-      background: #f7f8fa;
-      color: #111827;
+  input.addEventListener(
+    "keydown",
+    function (event) {
 
-      overflow: hidden;
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey
+      ) {
 
-      transition:
-        background 0.25s ease,
-        color 0.25s ease;
-    }
+        event.preventDefault();
 
-    body.dark {
-      background: #0b0f14;
-      color: #f3f4f6;
-    }
+        sendMessage();
 
-    button,
-    textarea {
-      font-family: inherit;
-    }
-
-    button {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .app {
-      width: 100%;
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* HEADER */
-
-    .header {
-      height: 64px;
-      min-height: 64px;
-
-      padding: 0 15px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      background:
-        rgba(255, 255, 255, 0.92);
-
-      border-bottom:
-        1px solid #e5e7eb;
-
-      backdrop-filter: blur(15px);
-
-      position: relative;
-      z-index: 50;
-    }
-
-    body.dark .header {
-      background:
-        rgba(15, 23, 32, 0.94);
-
-      border-color:
-        #1f2937;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-    }
-
-    .brand-title {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-
-    .brand-subtitle {
-      margin-top: 2px;
-
-      font-size: 7px;
-      font-weight: 700;
-
-      letter-spacing: 1.5px;
-
-      opacity: 0.55;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-
-      border: none;
-      border-radius: 12px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: transparent;
-      color: inherit;
-
-      cursor: pointer;
-
-      font-size: 19px;
-
-      transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-    }
-
-    .icon-btn:hover {
-      background: #f1f5f9;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.94);
-    }
-
-    body.dark .icon-btn:hover {
-      background: #1f2937;
-    }
-
-    /* CHAT */
-
-    .chat {
-      flex: 1;
-
-      overflow-y: auto;
-      overflow-x: hidden;
-
-      padding:
-        25px 14px 150px;
-
-      scroll-behavior: smooth;
-    }
-
-    .chat::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .chat::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-    }
-
-    body.dark .chat::-webkit-scrollbar-thumb {
-      background: #374151;
-    }
-
-    .welcome {
-      max-width: 760px;
-
-      margin:
-        65px auto 30px;
-
-      text-align: center;
-    }
-
-    .welcome-title {
-      font-size: 34px;
-      font-weight: 800;
-
-      margin-bottom: 7px;
-    }
-
-    .welcome-subtitle {
-      font-size: 9px;
-      font-weight: 600;
-
-      letter-spacing: 2px;
-
-      opacity: 0.55;
-    }
-
-    /* MODE */
-
-    .mode-bar {
-      max-width: 760px;
-
-      margin:
-        25px auto 18px;
-
-      display: flex;
-      gap: 7px;
-
-      overflow-x: auto;
-
-      scrollbar-width: none;
-    }
-
-    .mode-bar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .mode {
-      white-space: nowrap;
-
-      padding:
-        8px 14px;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius: 20px;
-
-      background: #ffffff;
-      color: #111827;
-
-      cursor: pointer;
-
-      font-size: 12px;
-
-      transition:
-        all 0.2s ease;
-    }
-
-    .mode.active {
-      background: #111827;
-      color: #ffffff;
-      border-color: #111827;
-    }
-
-    body.dark .mode {
-      background: #111827;
-      color: #f3f4f6;
-      border-color: #374151;
-    }
-
-    body.dark .mode.active {
-      background: #ffffff;
-      color: #111827;
-      border-color: #ffffff;
-    }
-
-    /* SUGGESTIONS */
-
-    .suggestions {
-      max-width: 760px;
-
-      margin:
-        20px auto;
-
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 10px;
-    }
-
-    .suggestion {
-      padding: 15px;
-
-      text-align: left;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius: 15px;
-
-      background: #ffffff;
-      color: inherit;
-
-      cursor: pointer;
-
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    }
-
-    .suggestion:hover {
-      transform: translateY(-2px);
-
-      box-shadow:
-        0 8px 25px
-        rgba(0, 0, 0, 0.07);
-    }
-
-    .suggestion:active {
-      transform: scale(0.98);
-    }
-
-    body.dark .suggestion {
-      background: #111827;
-      border-color: #374151;
-    }
-
-    /* MESSAGES */
-
-    #messages {
-      width: 100%;
-    }
-
-    .message {
-      max-width: 850px;
-
-      margin:
-        16px auto;
-
-      display: flex;
-      flex-direction: column;
-    }
-
-    .message.user {
-      align-items: flex-end;
-    }
-
-    .message.ai {
-      align-items: flex-start;
-    }
-
-    .bubble {
-      max-width: 88%;
-
-      padding:
-        13px 16px;
-
-      border-radius: 17px;
-
-      line-height: 1.65;
-
-      white-space: pre-wrap;
-      word-break: break-word;
-
-      font-size: 15px;
-    }
-
-    .user .bubble {
-      background: #111827;
-      color: #ffffff;
-
-      border-bottom-right-radius:
-        5px;
-    }
-
-    .ai .bubble {
-      background: #ffffff;
-      color: #111827;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-bottom-left-radius:
-        5px;
-    }
-
-    body.dark .ai .bubble {
-      background: #111827;
-      color: #f3f4f6;
-
-      border-color:
-        #374151;
-    }
-
-    .message-actions {
-      display: flex;
-      gap: 6px;
-
-      margin-top: 7px;
-    }
-
-    .small-btn {
-      border: none;
-
-      border-radius: 8px;
-
-      padding:
-        6px 9px;
-
-      cursor: pointer;
-
-      font-size: 11px;
-
-      background: #eef1f5;
-      color: #111827;
-    }
-
-    body.dark .small-btn {
-      background: #1f2937;
-      color: #ffffff;
-    }
-
-    /* INPUT */
-
-    .input-area {
-      position: fixed;
-
-      bottom: 0;
-      left: 0;
-
-      width: 100%;
-
-      padding:
-        20px 12px 12px;
-
-      background:
-        linear-gradient(
-          transparent,
-          #f7f8fa 30%
-        );
-
-      z-index: 40;
-    }
-
-    body.dark .input-area {
-      background:
-        linear-gradient(
-          transparent,
-          #0b0f14 30%
-        );
-    }
-
-    .input-box {
-      max-width: 850px;
-
-      margin: auto;
-
-      display: flex;
-      align-items: flex-end;
-
-      padding: 7px;
-
-      background: #ffffff;
-
-      border:
-        1px solid #dfe3e8;
-
-      border-radius: 18px;
-
-      box-shadow:
-        0 8px 30px
-        rgba(0, 0, 0, 0.08);
-    }
-
-    body.dark .input-box {
-      background: #111827;
-      border-color: #374151;
-    }
-
-    textarea {
-      flex: 1;
-
-      resize: none;
-
-      border: none;
-      outline: none;
-
-      padding:
-        11px;
-
-      min-height: 44px;
-      max-height: 130px;
-
-      background: transparent;
-      color: inherit;
-
-      font-size: 15px;
-
-      line-height: 1.5;
-    }
-
-    .voice-btn,
-    .send-btn {
-      width: 43px;
-      height: 43px;
-
-      flex-shrink: 0;
-
-      border: none;
-
-      border-radius: 13px;
-
-      cursor: pointer;
-
-      font-size: 18px;
-
-      transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-    }
-
-    .voice-btn:active,
-    .send-btn:active {
-      transform: scale(0.92);
-    }
-
-    .voice-btn {
-      background: #eef1f5;
-      color: #111827;
-
-      margin-right: 6px;
-    }
-
-    body.dark .voice-btn {
-      background: #1f2937;
-      color: #ffffff;
-    }
-
-    .voice-btn.recording {
-      background: #ef4444;
-      color: #ffffff;
-      animation:
-        recordingPulse 1.2s infinite;
-    }
-
-    @keyframes recordingPulse {
-      50% {
-        transform: scale(1.08);
       }
-    }
-
-    .send-btn {
-      background: #111827;
-      color: #ffffff;
-    }
-
-    body.dark .send-btn {
-      background: #ffffff;
-      color: #111827;
-    }
-
-    .send-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    /* SIDE MENU */
-
-    .menu-overlay {
-      position: fixed;
-
-      inset: 0;
-
-      background:
-        rgba(0, 0, 0, 0.35);
-
-      z-index: 90;
-
-      display: none;
-    }
-
-    .menu-overlay.open {
-      display: block;
-    }
-
-    .side-menu {
-      position: fixed;
-
-      top: 0;
-      right: -330px;
-
-      width: min(310px, 88vw);
-      height: 100dvh;
-
-      background: #ffffff;
-
-      z-index: 100;
-
-      padding: 18px;
-
-      transition:
-        right 0.3s ease;
-
-      box-shadow:
-        -10px 0 30px
-        rgba(0, 0, 0, 0.15);
-
-      overflow-y: auto;
-    }
-
-    .side-menu.open {
-      right: 0;
-    }
-
-    body.dark .side-menu {
-      background: #111827;
-    }
-
-    .menu-top {
-      display: flex;
-
-      align-items: center;
-      justify-content: space-between;
-
-      margin-bottom: 15px;
-    }
-
-    .menu-title {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .menu-actions {
-      display: flex;
-      gap: 7px;
-
-      margin-bottom: 15px;
-    }
-
-    .history-item {
-      padding: 12px;
-
-      border-radius: 10px;
-
-      background: #f3f4f6;
-
-      margin: 8px 0;
-
-      cursor: pointer;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-    }
-
-    body.dark .history-item {
-      background: #1f2937;
-    }
-
-    .empty-history {
-      opacity: 0.55;
-
-      font-size: 13px;
-
-      padding: 15px 5px;
-    }
-
-    /* VOICE MODE */
-
-    .voice-mode {
-      position: fixed;
-
-      inset: 0;
-
-      background:
-        rgba(7, 10, 15, 0.98);
-
-      color: #ffffff;
-
-      display: none;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      z-index: 200;
-
-      padding: 25px;
-    }
-
-    .voice-mode.active {
-      display: flex;
-    }
-
-    .voice-mode-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .voice-mode-subtitle {
-      font-size: 12px;
-      opacity: 0.65;
-      margin-bottom: 30px;
-    }
-
-    .voice-orb {
-      width: 155px;
-      height: 155px;
-
-      border-radius: 50%;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      font-size: 50px;
-
-      background: #111827;
-
-      cursor: pointer;
-
-      box-shadow:
-        0 0 0 0
-        rgba(255, 255, 255, 0.2);
-
-      transition:
-        transform 0.2s ease;
-    }
-
-    .voice-orb.listening {
-      animation:
-        voicePulse 1.5s infinite;
-    }
-
-    @keyframes voicePulse {
-      0% {
-        box-shadow:
-          0 0 0 0
-          rgba(255, 255, 255, 0.25);
-      }
-
-      70% {
-        box-shadow:
-          0 0 0 40px
-          rgba(255, 255, 255, 0);
-      }
-
-      100% {
-        box-shadow:
-          0 0 0 0
-          rgba(255, 255, 255, 0);
-      }
-    }
-
-    .voice-status {
-      margin-top: 28px;
-
-      font-size: 16px;
-
-      text-align: center;
-
-      min-height: 25px;
-    }
-
-    .voice-transcript {
-      max-width: 600px;
-
-      margin-top: 15px;
-
-      min-height: 25px;
-
-      text-align: center;
-
-      opacity: 0.75;
-
-      line-height: 1.6;
-    }
-
-    .voice-controls {
-      display: flex;
-
-      gap: 10px;
-
-      margin-top: 30px;
-    }
-
-    .voice-control-btn {
-      border: none;
-
-      border-radius: 12px;
-
-      padding:
-        12px 18px;
-
-      cursor: pointer;
-    }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 600px) {
-
-      .suggestions {
-        grid-template-columns: 1fr;
-      }
-
-      .welcome {
-        margin-top: 45px;
-      }
-
-      .welcome-title {
-        font-size: 28px;
-      }
-
-      .bubble {
-        max-width: 92%;
-      }
 
     }
-  </style>
-</head>
-
-<body>
+  );
 
-  <div class="app">
 
-    <!-- HEADER -->
+  /*
+  ==============================
+  SEND MESSAGE
+  ==============================
+  */
 
-    <header class="header">
+  async function sendMessage(voiceText) {
 
-      <div class="brand">
+    if (loading) {
+      return;
+    }
 
-        <div class="brand-title">
-          HYBRID AI
-        </div>
+    const text =
+      typeof voiceText === "string"
+        ? voiceText.trim()
+        : input.value.trim();
 
-        <div class="brand-subtitle">
-          SUPER POWER • MULTI-AI
-        </div>
+    if (!text) {
+      input.focus();
+      return;
+    }
 
-      </div>
-
-      <div class="header-actions">
+    welcome.style.display = "none";
 
-        <button
-          class="icon-btn"
-          id="themeBtn"
-          type="button"
-          aria-label="Toggle theme"
-        >
-          🌙
-        </button>
-
-        <button
-          class="icon-btn"
-          id="historyBtn"
-          type="button"
-          aria-label="Open chat history"
-        >
-          ☰
-        </button>
-
-      </div>
-
-    </header>
-
+    addUserMessage(text);
 
-    <!-- CHAT -->
+    currentChat.messages.push({
+      role: "user",
+      content: text
+    });
 
-    <main
-      class="chat"
-      id="chat"
-    >
+    input.value = "";
 
-      <section
-        class="welcome"
-        id="welcome"
-      >
+    resizeInput();
 
-        <div class="welcome-title">
-          HYBRID AI
-        </div>
+    createTitle(text);
 
-        <div class="welcome-subtitle">
-          SUPER POWER • MULTI-AI
-        </div>
+    saveChat();
 
+    loading = true;
 
-        <div class="mode-bar">
+    sendBtn.disabled = true;
 
-          <button
-            class="mode active"
-            data-mode="auto"
-            type="button"
-          >
-            ✨ Auto
-          </button>
-
-          <button
-            class="mode"
-            data-mode="fast"
-            type="button"
-          >
-            ⚡ Fast
-          </button>
+    const loadingElement =
+      addLoading();
 
-          <button
-            class="mode"
-            data-mode="deep"
-            type="button"
-          >
-            🧠 Deep
-          </button>
+    try {
 
-          <button
-            class="mode"
-            data-mode="creative"
-            type="button"
-          >
-            🎨 Creative
-          </button>
+      const answer =
+        await askAI();
 
-        </div>
-
-
-        <div class="suggestions">
-
-          <button
-            class="suggestion"
-            data-text="আমাকে নতুন কিছু শেখান"
-            type="button"
-          >
-            💡 নতুন কিছু শেখান
-          </button>
-
-          <button
-            class="suggestion"
-            data-text="একটি কঠিন বিষয় সহজভাবে বুঝিয়ে দিন"
-            type="button"
-          >
-            🧠 কঠিন বিষয় বুঝিয়ে দিন
-          </button>
-
-          <button
-            class="suggestion"
-            data-text="আমাকে একটি নতুন ব্যবসার আইডিয়া দিন"
-            type="button"
-          >
-            🚀 ব্যবসার আইডিয়া
-          </button>
-
-          <button
-            class="suggestion"
-            data-text="আমাকে একটি সুন্দর গল্প লিখে দিন"
-            type="button"
-          >
-            ✍️ গল্প লিখুন
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <div id="messages"></div>
-
-    </main>
-
-
-    <!-- INPUT -->
-
-    <div class="input-area">
-
-      <div class="input-box">
-
-        <textarea
-          id="input"
-          rows="1"
-          placeholder="HYBRID AI-কে কিছু জিজ্ঞাসা করুন..."
-          aria-label="Message"
-        ></textarea>
-
-        <button
-          class="voice-btn"
-          id="voiceBtn"
-          type="button"
-          aria-label="Open voice mode"
-        >
-          🎙️
-        </button>
-
-        <button
-          class="send-btn"
-          id="sendBtn"
-          type="button"
-          aria-label="Send message"
-        >
-          ➤
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- MENU OVERLAY -->
-
-  <div
-    class="menu-overlay"
-    id="menuOverlay"
-  ></div>
-
-
-  <!-- SIDE MENU -->
-
-  <aside
-    class="side-menu"
-    id="sideMenu"
-  >
-
-    <div class="menu-top">
-
-      <div class="menu-title">
-        Chat History
-      </div>
-
-      <button
-        class="icon-btn"
-        id="closeMenu"
-        type="button"
-        aria-label="Close menu"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="menu-actions">
-
-      <button
-        class="small-btn"
-        id="newChat"
-        type="button"
-      >
-        ＋ New Chat
-      </button>
-
-      <button
-        class="small-btn"
-        id="clearHistory"
-        type="button"
-      >
-        🗑 Clear
-      </button>
-
-    </div>
-
-
-    <div id="history"></div>
-
-  </aside>
-
-
-  <!-- VOICE MODE -->
-
-  <section
-    class="voice-mode"
-    id="voiceMode"
-  >
-
-    <div class="voice-mode-title">
-      HYBRID AI Voice Mode
-    </div>
-
-    <div class="voice-mode-subtitle">
-      কথা বলুন — AI শুনবে এবং উত্তর দেবে
-    </div>
-
-    <button
-      class="voice-orb"
-      id="voiceOrb"
-      type="button"
-      aria-label="Start voice conversation"
-    >
-      🎙️
-    </button>
-
-    <div
-      class="voice-status"
-      id="voiceStatus"
-    >
-      কথা বলার জন্য মাইক্রোফোনে চাপ দিন
-    </div>
-
-    <div
-      class="voice-transcript"
-      id="voiceTranscript"
-    ></div>
-
-    <div class="voice-controls">
-
-      <button
-        class="voice-control-btn"
-        id="stopSpeaking"
-        type="button"
-      >
-        🔇 AI Voice বন্ধ
-      </button>
-
-      <button
-        class="voice-control-btn"
-        id="closeVoice"
-        type="button"
-      >
-        বন্ধ করুন
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <script>
-
-    /* =====================================
-       GLOBAL STATE
-    ===================================== */
-
-    let currentChat = {
-      id: Date.now(),
-      title: "New Chat",
-      messages: []
-    };
-
-    let selectedMode = "auto";
-
-    let loading = false;
-
-    let recognition = null;
-
-    let isListening = false;
-
-
-    /* =====================================
-       ELEMENTS
-    ===================================== */
-
-    const input =
-      document.getElementById("input");
-
-    const sendBtn =
-      document.getElementById("sendBtn");
-
-    const messages =
-      document.getElementById("messages");
-
-    const welcome =
-      document.getElementById("welcome");
-
-    const chat =
-      document.getElementById("chat");
-
-    const themeBtn =
-      document.getElementById("themeBtn");
-
-    const historyBtn =
-      document.getElementById("historyBtn");
-
-    const sideMenu =
-      document.getElementById("sideMenu");
-
-    const closeMenu =
-      document.getElementById("closeMenu");
-
-    const menuOverlay =
-      document.getElementById("menuOverlay");
-
-    const history =
-      document.getElementById("history");
-
-    const newChatBtn =
-      document.getElementById("newChat");
-
-    const clearHistoryBtn =
-      document.getElementById("clearHistory");
-
-    const voiceBtn =
-      document.getElementById("voiceBtn");
-
-    const voiceMode =
-      document.getElementById("voiceMode");
-
-    const voiceOrb =
-      document.getElementById("voiceOrb");
-
-    const voiceStatus =
-      document.getElementById("voiceStatus");
-
-    const voiceTranscript =
-      document.getElementById("voiceTranscript");
-
-    const stopSpeaking =
-      document.getElementById("stopSpeaking");
-
-    const closeVoice =
-      document.getElementById("closeVoice");
-
-
-    /* =====================================
-       THEME
-    ===================================== */
-
-    const savedTheme =
-      localStorage.getItem(
-        "hybrid_theme"
+      removeLoading(
+        loadingElement
       );
 
-    if (savedTheme === "dark") {
+      addAIMessage(answer);
 
-      document.body.classList.add(
-        "dark"
+      currentChat.messages.push({
+        role: "assistant",
+        content: answer
+      });
+
+      saveChat();
+
+      if (
+        voiceMode.classList.contains("active")
+      ) {
+
+        speakText(answer);
+
+      }
+
+    } catch (error) {
+
+      removeLoading(
+        loadingElement
       );
 
-      themeBtn.textContent =
-        "☀️";
+      addAIMessage(
+        "⚠️ সমস্যা হয়েছে:\n\n" +
+        error.message
+      );
+
+    } finally {
+
+      loading = false;
+
+      sendBtn.disabled = false;
+
+    }
+
+  }
+
+
+  /*
+  ==============================
+  API REQUEST
+  ==============================
+  */
+
+  async function askAI() {
+
+    const response =
+      await fetch(
+        "/api/chat",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            messages:
+              currentChat.messages,
+            mode:
+              selectedMode
+          })
+        }
+      );
+
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+
+    if (
+      !contentType.includes(
+        "application/json"
+      )
+    ) {
+
+      const text =
+        await response.text();
+
+      throw new Error(
+        "Server থেকে সঠিক উত্তর পাওয়া যায়নি। Status: " +
+        response.status
+      );
 
     }
 
 
-    themeBtn.addEventListener(
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "AI request failed."
+      );
+
+    }
+
+
+    if (
+      !data.answer
+    ) {
+
+      throw new Error(
+        "AI কোনো উত্তর দেয়নি।"
+      );
+
+    }
+
+
+    return data.answer;
+
+  }
+
+
+  /*
+  ==============================
+  USER MESSAGE
+  ==============================
+  */
+
+  function addUserMessage(text) {
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "message user";
+
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      text;
+
+
+    wrapper.appendChild(
+      bubble
+    );
+
+    messagesEl.appendChild(
+      wrapper
+    );
+
+    scrollBottom();
+
+  }
+
+
+  /*
+  ==============================
+  AI MESSAGE
+  ==============================
+  */
+
+  function addAIMessage(text) {
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "message ai";
+
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      text;
+
+
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "message-actions";
+
+
+    const copyBtn =
+      document.createElement("button");
+
+    copyBtn.className =
+      "small-btn";
+
+    copyBtn.type =
+      "button";
+
+    copyBtn.textContent =
+      "📋 Copy";
+
+
+    copyBtn.addEventListener(
       "click",
-      function () {
+      async function () {
 
-        document.body.classList.toggle(
-          "dark"
-        );
+        try {
 
-        const isDark =
-          document.body.classList.contains(
-            "dark"
+          await navigator.clipboard.writeText(
+            text
           );
 
-        localStorage.setItem(
-          "hybrid_theme",
-          isDark
-            ? "dark"
-            : "light"
-        );
+          copyBtn.textContent =
+            "✓ Copied";
 
-        themeBtn.textContent =
-          isDark
-            ? "☀️"
-            : "🌙";
+        } catch {
+
+          copyBtn.textContent =
+            "Copy failed";
+
+        }
+
+        setTimeout(function () {
+
+          copyBtn.textContent =
+            "📋 Copy";
+
+        }, 1500);
 
       }
     );
 
 
-    /* =====================================
-       MODE SELECTOR
-    ===================================== */
+    const speakBtn =
+      document.createElement("button");
 
-    document
-      .querySelectorAll(".mode")
-      .forEach(
-        function (button) {
+    speakBtn.className =
+      "small-btn";
 
-          button.addEventListener(
-            "click",
-            function () {
+    speakBtn.type =
+      "button";
 
-              document
-                .querySelectorAll(".mode")
-                .forEach(
-                  function (item) {
+    speakBtn.textContent =
+      "🔊 Speak";
 
-                    item.classList.remove(
-                      "active"
-                    );
 
-                  }
-                );
+    speakBtn.addEventListener(
+      "click",
+      function () {
 
-              button.classList.add(
-                "active"
-              );
+        speakText(text);
 
-              selectedMode =
-                button.dataset.mode;
+      }
+    );
 
-            }
-     
+
+    actions.appendChild(
+      copyBtn
+    );
+
+    actions.appendChild(
+      speakBtn
+    );
+
+
+    wrapper.appendChild(
+      bubble
+    );
+
+    wrapper.appendChild(
+      actions
+    );
+
+
+    messagesEl.appendChild(
+      wrapper
+    );
+
+    scrollBottom();
+
+  }
+
+
+  /*
+  ==============================
+  LOADING
+  ==============================
+  */
+
+  function addLoading() {
+
+    const element =
+      document.createElement("div");
+
+    element.className =
+      "message ai";
+
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      "HYBRID AI চিন্তা করছে...";
+
+
+    element.appendChild(
+      bubble
+    );
+
+    messagesEl.appendChild(
+      element
+    );
+
+    scrollBottom();
+
+
+    return element;
+
+  }
+
+
+  function removeLoading(element) {
+
+    if (element) {
+      element.remove();
+    }
+
+  }
+
+
+  /*
+  ==============================
+  VOICE OUTPUT
+  ==============================
+  */
+
+  function speakText(text) {
+
+    if (
+      !("speechSynthesis" in window)
+    ) {
+
+      return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+
+    utterance.lang =
+      /[\u0980-\u09FF]/.test(text)
+        ? "bn-BD"
+        : "en-US";
+
+
+    utterance.rate =
+      1;
+
+    utterance.pitch =
+      1;
+
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+
+  }
+
+
+  stopSpeakingBtn.addEventListener(
+    "click",
+    function () {
+
+      if (
+        "speechSynthesis" in window
+      ) {
+
+        window.speechSynthesis.cancel();
+
+        voiceStatus.textContent =
+          "🔇 AI Voice বন্ধ করা হয়েছে";
+
+      }
+
+    }
+  );
+
+
+  /*
+  ==============================
+  VOICE INPUT
+  ==============================
+  */
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+  if (SpeechRecognition) {
+
+    recognition =
+      new SpeechRecognition();
+
+    recognition.continuous =
+      false;
+
+    recognition.interimResults =
+      false;
+
+    recognition.lang =
+      "bn-BD";
+
+
+    recognition.onstart =
+      function () {
+
+        isListening = true;
+
+        voiceOrb.classList.add(
+          "listening"
+        );
+
+        voiceBtn.classList.add(
+          "recording"
+        );
+
+        voiceStatus.textContent =
+          "🎙️ শুনছি... কথা বলুন";
+
+      };
+
+
+    recognition.onresult =
+      function (event) {
+
+        const text =
+          event.results[0][0].transcript;
+
+        voiceTranscript.textContent =
+          "আপনি বলেছেন: " +
+          text;
+
+        sendMessage(text);
+
+      };
+
+
+    recognition.onerror =
+      function (event) {
+
+        voiceStatus.
