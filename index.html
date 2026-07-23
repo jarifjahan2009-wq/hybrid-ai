@@ -963,75 +963,47 @@ body.dark .history-item{
 <script>
 "use strict";
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", () => {
 
-  /* ================= ELEMENTS ================= */
+  /* =========================
+     GET HTML ELEMENTS
+  ========================= */
 
-  const input =
-    document.getElementById("input");
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
+  const voiceBtn = document.getElementById("voiceBtn");
 
-  const sendBtn =
-    document.getElementById("sendBtn");
+  const themeBtn = document.getElementById("themeBtn");
+  const historyBtn = document.getElementById("historyBtn");
 
-  const messagesEl =
-    document.getElementById("messages");
+  const chat = document.getElementById("chat");
+  const messagesEl = document.getElementById("messages");
+  const welcome = document.getElementById("welcome");
 
-  const welcome =
-    document.getElementById("welcome");
+  const sideMenu = document.getElementById("sideMenu");
+  const closeMenu = document.getElementById("closeMenu");
+  const menuOverlay = document.getElementById("menuOverlay");
 
-  const chat =
-    document.getElementById("chat");
+  const newChatBtn = document.getElementById("newChat");
+  const clearHistoryBtn = document.getElementById("clearHistory");
+  const historyEl = document.getElementById("history");
 
-  const themeBtn =
-    document.getElementById("themeBtn");
+  const voiceMode = document.getElementById("voiceMode");
+  const voiceOrb = document.getElementById("voiceOrb");
+  const closeVoiceBtn = document.getElementById("closeVoice");
+  const stopSpeakingBtn = document.getElementById("stopSpeaking");
 
-  const themeIcon =
-    document.getElementById("themeIcon");
+  const voiceStatus = document.getElementById("voiceStatus");
+  const voiceTranscript = document.getElementById("voiceTranscript");
 
-  const historyBtn =
-    document.getElementById("historyBtn");
+  /* =========================
+     STATE
+  ========================= */
 
-  const sideMenu =
-    document.getElementById("sideMenu");
-
-  const closeMenu =
-    document.getElementById("closeMenu");
-
-  const menuOverlay =
-    document.getElementById("menuOverlay");
-
-  const historyEl =
-    document.getElementById("history");
-
-  const newChatBtn =
-    document.getElementById("newChat");
-
-  const clearHistoryBtn =
-    document.getElementById("clearHistory");
-
-  const voiceBtn =
-    document.getElementById("voiceBtn");
-
-  const voiceMode =
-    document.getElementById("voiceMode");
-
-  const voiceOrb =
-    document.getElementById("voiceOrb");
-
-  const voiceStatus =
-    document.getElementById("voiceStatus");
-
-  const voiceTranscript =
-    document.getElementById("voiceTranscript");
-
-  const stopSpeakingBtn =
-    document.getElementById("stopSpeaking");
-
-  const closeVoiceBtn =
-    document.getElementById("closeVoice");
-
-
-  /* ================= STATE ================= */
+  let isLoading = false;
+  let selectedMode = "auto";
+  let recognition = null;
+  let isListening = false;
 
   let currentChat = {
     id: Date.now(),
@@ -1039,93 +1011,108 @@ document.addEventListener("DOMContentLoaded", function(){
     messages: []
   };
 
-  let selectedMode = "auto";
+  /* =========================
+     THEME
+  ========================= */
 
-  let loading = false;
+  function updateTheme() {
 
-  let recognition = null;
+    const savedTheme =
+      localStorage.getItem("hybrid_theme");
 
-  let isListening = false;
-
-
-  /* ================= THEME ================= */
-
-  function updateThemeIcon(){
-
-    const dark =
-      document.body.classList.contains("dark");
-
-    if(dark){
-
-      themeIcon.innerHTML =
-        '<circle cx="12" cy="12" r="4"></circle>' +
-        '<path d="M12 2v2"></path>' +
-        '<path d="M12 20v2"></path>' +
-        '<path d="m4.93 4.93 1.41 1.41"></path>' +
-        '<path d="m17.66 17.66 1.41 1.41"></path>' +
-        '<path d="M2 12h2"></path>' +
-        '<path d="M20 12h2"></path>' +
-        '<path d="m6.34 17.66-1.41 1.41"></path>' +
-        '<path d="m19.07 4.93-1.41 1.41"></path>';
-
-    }else{
-
-      themeIcon.innerHTML =
-        '<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.7 6.7 0 0 0 9.8 9.8Z"></path>';
-
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
     }
-
   }
 
+  updateTheme();
 
-  if(
-    localStorage.getItem("hybrid_theme")
-    === "dark"
-  ){
+  if (themeBtn) {
 
-    document.body.classList.add("dark");
-
-  }
-
-  updateThemeIcon();
-
-
-  themeBtn.addEventListener(
-    "click",
-    function(){
+    themeBtn.addEventListener("click", () => {
 
       document.body.classList.toggle("dark");
 
-      const dark =
+      const isDark =
         document.body.classList.contains("dark");
 
       localStorage.setItem(
         "hybrid_theme",
-        dark ? "dark" : "light"
+        isDark ? "dark" : "light"
       );
 
-      updateThemeIcon();
+    });
 
+  }
+
+  /* =========================
+     MENU
+  ========================= */
+
+  function openMenu() {
+
+    if (sideMenu) {
+      sideMenu.classList.add("open");
     }
-  );
 
+    if (menuOverlay) {
+      menuOverlay.classList.add("open");
+    }
 
-  /* ================= MODES ================= */
+    renderHistory();
+  }
+
+  function closeMenuFunction() {
+
+    if (sideMenu) {
+      sideMenu.classList.remove("open");
+    }
+
+    if (menuOverlay) {
+      menuOverlay.classList.remove("open");
+    }
+
+  }
+
+  if (historyBtn) {
+    historyBtn.addEventListener(
+      "click",
+      openMenu
+    );
+  }
+
+  if (closeMenu) {
+    closeMenu.addEventListener(
+      "click",
+      closeMenuFunction
+    );
+  }
+
+  if (menuOverlay) {
+    menuOverlay.addEventListener(
+      "click",
+      closeMenuFunction
+    );
+  }
+
+  /* =========================
+     MODE BUTTONS
+  ========================= */
 
   document
     .querySelectorAll(".mode")
-    .forEach(function(button){
+    .forEach((button) => {
 
       button.addEventListener(
         "click",
-        function(){
+        () => {
 
           document
             .querySelectorAll(".mode")
-            .forEach(function(item){
-
+            .forEach((item) => {
               item.classList.remove("active");
-
             });
 
           button.classList.add("active");
@@ -1138,36 +1125,45 @@ document.addEventListener("DOMContentLoaded", function(){
 
     });
 
-
-  /* ================= SUGGESTIONS ================= */
+  /* =========================
+     SUGGESTION BUTTONS
+  ========================= */
 
   document
     .querySelectorAll(".suggestion")
-    .forEach(function(button){
+    .forEach((button) => {
 
       button.addEventListener(
         "click",
-        function(){
+        () => {
 
-          input.value =
+          const text =
             button.dataset.text || "";
 
-          resizeInput();
+          if (input) {
 
-          input.focus();
+            input.value = text;
+
+            resizeInput();
+
+            input.focus();
+
+          }
 
         }
       );
 
     });
 
+  /* =========================
+     TEXTAREA RESIZE
+  ========================= */
 
-  /* ================= TEXTAREA ================= */
+  function resizeInput() {
 
-  function resizeInput(){
+    if (!input) return;
 
-    input.style.height =
-      "auto";
+    input.style.height = "auto";
 
     input.style.height =
       Math.min(
@@ -1177,195 +1173,1084 @@ document.addEventListener("DOMContentLoaded", function(){
 
   }
 
+  if (input) {
 
-  input.addEventListener(
-    "input",
-    resizeInput
-  );
+    input.addEventListener(
+      "input",
+      resizeInput
+    );
 
+  }
 
-  /* ================= SEND ================= */
+  /* =========================
+     SEND BUTTON
+  ========================= */
 
-  sendBtn.addEventListener(
-    "click",
-    function(){
+  if (sendBtn) {
 
-      sendMessage();
-
-    }
-  );
-
-
-  input.addEventListener(
-    "keydown",
-    function(event){
-
-      if(
-        event.key === "Enter" &&
-        !event.shiftKey
-      ){
-
-        event.preventDefault();
+    sendBtn.addEventListener(
+      "click",
+      () => {
 
         sendMessage();
 
       }
+    );
 
-    }
-  );
+  }
 
+  /* =========================
+     ENTER TO SEND
+  ========================= */
 
-  /* ================= SEND MESSAGE ================= */
+  if (input) {
 
-  async function sendMessage(voiceText){
+    input.addEventListener(
+      "keydown",
+      (event) => {
 
-    if(loading){
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
 
+          event.preventDefault();
+
+          sendMessage();
+
+        }
+
+      }
+    );
+
+  }
+
+  /* =========================
+     SEND MESSAGE
+  ========================= */
+
+  async function sendMessage(customText = null) {
+
+    if (isLoading) {
       return;
-
     }
 
     const text =
-      typeof voiceText === "string"
-        ? voiceText.trim()
-        : input.value.trim();
+      typeof customText === "string"
+        ? customText.trim()
+        : input
+          ? input.value.trim()
+          : "";
 
+    if (!text) {
 
-    if(!text){
-
-      input.focus();
+      if (input) {
+        input.focus();
+      }
 
       return;
 
     }
 
-
-    welcome.style.display =
-      "none";
-
+    if (welcome) {
+      welcome.style.display = "none";
+    }
 
     addUserMessage(text);
 
-
     currentChat.messages.push({
-      role:"user",
-      content:text
+      role: "user",
+      content: text
     });
 
+    if (input) {
+      input.value = "";
+      resizeInput();
+    }
 
-    input.value =
-      "";
+    createChatTitle(text);
 
-    resizeInput();
+    saveCurrentChat();
 
-    createTitle(text);
+    isLoading = true;
 
-    saveChat();
-
-
-    loading =
-      true;
-
-    sendBtn.disabled =
-      true;
-
+    if (sendBtn) {
+      sendBtn.disabled = true;
+    }
 
     const loadingElement =
-      addLoading();
+      addLoadingMessage();
 
-
-    try{
+    try {
 
       const answer =
         await askAI();
 
-
-      removeLoading(
+      removeLoadingMessage(
         loadingElement
       );
 
-
-      addAIMessage(
-        answer
-      );
-
+      addAIMessage(answer);
 
       currentChat.messages.push({
-        role:"assistant",
-        content:answer
+        role: "assistant",
+        content: answer
       });
 
+      saveCurrentChat();
 
-      saveChat();
+    } catch (error) {
 
-
-      if(
-        voiceMode.classList.contains("active")
-      ){
-
-        speakText(answer);
-
-      }
-
-
-    }catch(error){
-
-      removeLoading(
+      removeLoadingMessage(
         loadingElement
       );
 
-
       addAIMessage(
-        "⚠️ সমস্যা হয়েছে:\n\n" +
+        "⚠️ দুঃখিত, একটি সমস্যা হয়েছে।\n\n" +
         error.message
       );
 
+      console.error(
+        "HYBRID AI Error:",
+        error
+      );
 
-    }finally{
+    } finally {
 
-      loading =
-        false;
+      isLoading = false;
 
-      sendBtn.disabled =
-        false;
+      if (sendBtn) {
+        sendBtn.disabled = false;
+      }
 
     }
 
   }
 
+  /* =========================
+     API REQUEST
+  ========================= */
 
-  /* ================= API ================= */
-
-  async function askAI(){
+  async function askAI() {
 
     const response =
       await fetch(
         "/api/chat",
         {
-          method:"POST",
+          method: "POST",
 
-          headers:{
+          headers: {
             "Content-Type":
               "application/json"
           },
 
-          body:
-            JSON.stringify({
-              messages:
-                currentChat.messages,
+          body: JSON.stringify({
 
-              mode:
-                selectedMode
-            })
+            messages:
+              currentChat.messages,
+
+            mode:
+              selectedMode
+
+          })
+
         }
       );
-
 
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
+    if (
+      !contentType.includes(
+        "application/json"
+      )
+    ) {
 
-    if(
-      !co
+      throw new Error(
+        "Server থেকে JSON response পাওয়া যায়নি। HTTP Status: " +
+        response.status
+      );
+
+    }
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        data.details ||
+        "AI request failed."
+      );
+
+    }
+
+    if (
+      !data.answer ||
+      typeof data.answer !== "string"
+    ) {
+
+      throw new Error(
+        "AI কোনো উত্তর দেয়নি।"
+      );
+
+    }
+
+    return data.answer;
+
+  }
+
+  /* =========================
+     ADD USER MESSAGE
+  ========================= */
+
+  function addUserMessage(text) {
+
+    if (!messagesEl) return;
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "message user";
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      text;
+
+    wrapper.appendChild(
+      bubble
+    );
+
+    messagesEl.appendChild(
+      wrapper
+    );
+
+    scrollToBottom();
+
+  }
+
+  /* =========================
+     ADD AI MESSAGE
+  ========================= */
+
+  function addAIMessage(text) {
+
+    if (!messagesEl) return;
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "message ai";
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      text;
+
+    wrapper.appendChild(
+      bubble
+    );
+
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "message-actions";
+
+    /* COPY BUTTON */
+
+    const copyBtn =
+      document.createElement("button");
+
+    copyBtn.type =
+      "button";
+
+    copyBtn.className =
+      "small-btn";
+
+    copyBtn.textContent =
+      "📋 Copy";
+
+    copyBtn.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await navigator.clipboard.writeText(
+            text
+          );
+
+          copyBtn.textContent =
+            "✓ Copied";
+
+          setTimeout(
+            () => {
+              copyBtn.textContent =
+                "📋 Copy";
+            },
+            1500
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Copy Error:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+    /* SPEAK BUTTON */
+
+    const speakBtn =
+      document.createElement("button");
+
+    speakBtn.type =
+      "button";
+
+    speakBtn.className =
+      "small-btn";
+
+    speakBtn.textContent =
+      "🔊 Speak";
+
+    speakBtn.addEventListener(
+      "click",
+      () => {
+
+        speakText(text);
+
+      }
+    );
+
+    actions.appendChild(
+      copyBtn
+    );
+
+    actions.appendChild(
+      speakBtn
+    );
+
+    wrapper.appendChild(
+      actions
+    );
+
+    messagesEl.appendChild(
+      wrapper
+    );
+
+    scrollToBottom();
+
+  }
+
+  /* =========================
+     LOADING MESSAGE
+  ========================= */
+
+  function addLoadingMessage() {
+
+    if (!messagesEl) {
+      return null;
+    }
+
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "message ai";
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "bubble";
+
+    bubble.textContent =
+      "HYBRID AI চিন্তা করছে...";
+
+    wrapper.appendChild(
+      bubble
+    );
+
+    messagesEl.appendChild(
+      wrapper
+    );
+
+    scrollToBottom();
+
+    return wrapper;
+
+  }
+
+  function removeLoadingMessage(
+    element
+  ) {
+
+    if (element) {
+      element.remove();
+    }
+
+  }
+
+  /* =========================
+     VOICE MODE
+  ========================= */
+
+  if (voiceBtn) {
+
+    voiceBtn.addEventListener(
+      "click",
+      () => {
+
+        if (voiceMode) {
+
+          voiceMode.classList.add(
+            "active"
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+  if (closeVoiceBtn) {
+
+    closeVoiceBtn.addEventListener(
+      "click",
+      () => {
+
+        if (voiceMode) {
+
+          voiceMode.classList.remove(
+            "active"
+          );
+
+        }
+
+        stopRecognition();
+
+        stopSpeaking();
+
+      }
+    );
+
+  }
+
+  /* =========================
+     SPEECH RECOGNITION
+  ========================= */
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+
+    recognition =
+      new SpeechRecognition();
+
+    recognition.continuous =
+      false;
+
+    recognition.interimResults =
+      false;
+
+    recognition.lang =
+      "bn-BD";
+
+    recognition.onstart =
+      () => {
+
+        isListening = true;
+
+        if (voiceOrb) {
+
+          voiceOrb.classList.add(
+            "listening"
+          );
+
+        }
+
+        if (voiceBtn) {
+
+          voiceBtn.classList.add(
+            "recording"
+          );
+
+        }
+
+        if (voiceStatus) {
+
+          voiceStatus.textContent =
+            "শুনছি... কথা বলুন";
+
+        }
+
+      };
+
+    recognition.onresult =
+      (event) => {
+
+        const text =
+          event
+            .results[0][0]
+            .transcript;
+
+        if (voiceTranscript) {
+
+          voiceTranscript.textContent =
+            "আপনি বলেছেন: " +
+            text;
+
+        }
+
+        sendMessage(text);
+
+      };
+
+    recognition.onerror =
+      (event) => {
+
+        console.error(
+          "Voice Recognition Error:",
+          event.error
+        );
+
+        if (voiceStatus) {
+
+          voiceStatus.textContent =
+            "Voice Error: " +
+            event.error;
+
+        }
+
+      };
+
+    recognition.onend =
+      () => {
+
+        isListening = false;
+
+        if (voiceOrb) {
+
+          voiceOrb.classList.remove(
+            "listening"
+          );
+
+        }
+
+        if (voiceBtn) {
+
+          voiceBtn.classList.remove(
+            "recording"
+          );
+
+        }
+
+      };
+
+  }
+
+  /* =========================
+     VOICE ORB BUTTON
+  ========================= */
+
+  if (voiceOrb) {
+
+    voiceOrb.addEventListener(
+      "click",
+      () => {
+
+        if (!recognition) {
+
+          if (voiceStatus) {
+
+            voiceStatus.textContent =
+              "আপনার Browser Voice Input সমর্থন করে না।";
+
+          }
+
+          return;
+
+        }
+
+        if (isListening) {
+
+          stopRecognition();
+
+          return;
+
+        }
+
+        try {
+
+          recognition.start();
+
+        } catch (error) {
+
+          console.error(
+            "Voice Start Error:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+  function stopRecognition() {
+
+    if (
+      recognition &&
+      isListening
+    ) {
+
+      try {
+
+        recognition.stop();
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+      }
+
+    }
+
+  }
+
+  /* =========================
+     TEXT TO SPEECH
+  ========================= */
+
+  function speakText(text) {
+
+    if (
+      !("speechSynthesis" in window)
+    ) {
+
+      return;
+
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+    utterance.lang =
+      /[\u0980-\u09FF]/.test(text)
+        ? "bn-BD"
+        : "en-US";
+
+    utterance.rate =
+      1;
+
+    utterance.pitch =
+      1;
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+
+  }
+
+  function stopSpeaking() {
+
+    if (
+      "speechSynthesis" in window
+    ) {
+
+      window.speechSynthesis.cancel();
+
+    }
+
+  }
+
+  if (stopSpeakingBtn) {
+
+    stopSpeakingBtn.addEventListener(
+      "click",
+      () => {
+
+        stopSpeaking();
+
+        if (voiceStatus) {
+
+          voiceStatus.textContent =
+            "AI Voice বন্ধ করা হয়েছে";
+
+        }
+
+      }
+    );
+
+  }
+
+  /* =========================
+     CHAT HISTORY
+  ========================= */
+
+  function getHistory() {
+
+    try {
+
+      return JSON.parse(
+        localStorage.getItem(
+          "hybrid_history"
+        ) || "[]"
+      );
+
+    } catch (error) {
+
+      console.error(
+        "History Error:",
+        error
+      );
+
+      return [];
+
+    }
+
+  }
+
+  function saveCurrentChat() {
+
+    const chats =
+      getHistory();
+
+    const index =
+      chats.findIndex(
+        (item) =>
+          item.id ===
+          currentChat.id
+      );
+
+    if (index >= 0) {
+
+      chats[index] =
+        currentChat;
+
+    } else {
+
+      chats.unshift(
+        currentChat
+      );
+
+    }
+
+    localStorage.setItem(
+      "hybrid_history",
+      JSON.stringify(chats)
+    );
+
+  }
+
+  function createChatTitle(
+    text
+  ) {
+
+    if (
+      currentChat.title !==
+      "New Chat"
+    ) {
+
+      return;
+
+    }
+
+    currentChat.title =
+      text.length > 40
+        ? text.substring(
+            0,
+            40
+          ) + "..."
+        : text;
+
+  }
+
+  /* =========================
+     RENDER HISTORY
+  ========================= */
+
+  function renderHistory() {
+
+    if (!historyEl) return;
+
+    historyEl.innerHTML =
+      "";
+
+    const chats =
+      getHistory();
+
+    if (
+      chats.length === 0
+    ) {
+
+      historyEl.innerHTML =
+        '<div class="empty-history">এখনও কোনো Chat History নেই।</div>';
+
+      return;
+
+    }
+
+    chats.forEach(
+      (chatItem) => {
+
+        const item =
+          document.createElement(
+            "div"
+          );
+
+        item.className =
+          "history-item";
+
+        item.textContent =
+          chatItem.title ||
+          "New Chat";
+
+        item.addEventListener(
+          "click",
+          () => {
+
+            loadChat(
+              chatItem.id
+            );
+
+          }
+        );
+
+        historyEl.appendChild(
+          item
+        );
+
+      }
+    );
+
+  }
+
+  /* =========================
+     LOAD CHAT
+  ========================= */
+
+  function loadChat(id) {
+
+    const chats =
+      getHistory();
+
+    const found =
+      chats.find(
+        (item) =>
+          item.id === id
+      );
+
+    if (!found) {
+      return;
+    }
+
+    currentChat =
+      found;
+
+    if (messagesEl) {
+
+      messagesEl.innerHTML =
+        "";
+
+    }
+
+    if (welcome) {
+
+      welcome.style.display =
+        "none";
+
+    }
+
+    currentChat.messages
+      .forEach(
+        (message) => {
+
+          if (
+            message.role ===
+            "user"
+          ) {
+
+            addUserMessage(
+              message.content
+            );
+
+          }
+
+          if (
+            message.role ===
+            "assistant"
+          ) {
+
+            addAIMessage(
+              message.content
+            );
+
+          }
+
+        }
+      );
+
+    closeMenuFunction();
+
+  }
+
+  /* =========================
+     NEW CHAT
+  ========================= */
+
+  if (newChatBtn) {
+
+    newChatBtn.addEventListener(
+      "click",
+      () => {
+
+        currentChat = {
+          id: Date.now(),
+          title: "New Chat",
+          messages: []
+        };
+
+        if (messagesEl) {
+
+          messagesEl.innerHTML =
+            "";
+
+        }
+
+        if (welcome) {
+
+          welcome.style.display =
+            "block";
+
+        }
+
+        closeMenuFunction();
+
+        if (input) {
+
+          input.focus();
+
+        }
+
+      }
+    );
+
+  }
+
+  /* =========================
+     CLEAR HISTORY
+  ========================= */
+
+  if (clearHistoryBtn) {
+
+    clearHistoryBtn.addEventListener(
+      "click",
+      () => {
+
+        const confirmed =
+          confirm(
+            "সব Chat History মুছে ফেলবেন?"
+          );
+
+        if (!confirmed) {
+          return;
+        }
+
+        localStorage.removeItem(
+          "hybrid_history"
+        );
+
+        renderHistory();
+
+      }
+    );
+
+  }
+
+  /* =========================
+     SCROLL
+  ========================= */
+
+  function scrollToBottom() {
+
+    setTimeout(
+      () => {
+
+        if (chat) {
+
+          chat.scrollTop =
+            chat.scrollHeight;
+
+        }
+
+        window.scrollTo(
+          0,
+          document.body.scrollHeight
+        );
+
+      },
+      50
+    );
+
+  }
+
+  /* =========================
+     DEBUG
+  ========================= */
+
+  console.log(
+    "HYBRID AI Frontend JavaScript loaded successfully."
+  );
+
+  console.log(
+    "Send Button:",
+    !!sendBtn
+  );
+
+  console.log(
+    "Voice Button:",
+    !!voiceBtn
+  );
+
+  console.log(
+    "Theme Button:",
+    !!themeBtn
+  );
+
+  console.log(
+    "Menu Button:",
+    !!historyBtn
+  );
+
+});
+  </script>
